@@ -58,8 +58,11 @@ func ParseM3UFromURL(db *sql.DB, m3uURL string, m3uIndex int, maxConcurrency int
 			return fmt.Errorf("Download file error: %v", err)
 		}
 
-		log.Println("Parsing downloaded M3U file.")
-		scanner := bufio.NewScanner(&buffer)
+		// Filter downloaded M3U file
+		filteredBuffer := filterM3u(buffer)
+
+		log.Println("Parsing filtered M3U file.")
+		scanner := bufio.NewScanner(&filteredBuffer)
 
 		var currentStream database.StreamInfo
 
@@ -188,6 +191,7 @@ func ParseM3UFromURL(db *sql.DB, m3uURL string, m3uIndex int, maxConcurrency int
 
 		// Free up memory used by buffer
 		buffer.Reset()
+		filteredBuffer.Reset()
 
 		return nil
 	}
